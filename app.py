@@ -4,6 +4,7 @@ from decimal import Decimal
 import pandas as pd
 from reportlab.platypus import SimpleDocTemplate, Table
 from io import BytesIO
+import os
 
 app = Flask(__name__)
 app.secret_key = "rice_shop_secret"
@@ -767,5 +768,10 @@ def download_suppliers_excel():
 
 # RUN
 # ======================
-if __name__ == '__main__':
-    app.run(debug=True)
+
+
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000))
+    )
