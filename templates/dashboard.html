@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard | Lsoworks</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    background:#020617;
+    color:white;
+}
+.card{
+    background:#0f172a;
+    border:1px solid #1e293b;
+}
+.sidebar-link{ transition:.3s; }
+.sidebar-link:hover{
+    background:#1e293b;
+    transform:translateX(4px);
+}
+/* Mobile sidebar toggle states */
+#sidebar.mobile-open {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 50;
+    box-shadow: 25px 0 50px -12px rgba(0, 0, 0, 0.5);
+}
+</style>
+
+</head>
+
+<body>
+
+<header class="md:hidden bg-slate-950 border-b border-slate-800 p-4 flex justify-between items-center sticky top-0 z-40">
+    <div class="flex items-center gap-3">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="w-8 h-8 rounded-lg">
+        <span class="text-xl font-bold text-pink-500">Lsoworks</span>
+    </div>
+    <button id="menuBtn" class="text-xl text-slate-400 p-2 focus:outline-none">
+        <i class="fas fa-bars"></i>
+    </button>
+</header>
+
+<div class="flex min-h-screen">
+
+    <aside id="sidebar" class="w-72 bg-slate-950 border-r border-slate-800 hidden md:block transition-all duration-300">
+        <div class="p-6 text-center relative">
+            <button id="closeBtn" class="md:hidden absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
+            <img src="{{ url_for('static', filename='logo.png') }}"
+                 alt="Company Logo"
+                 class="w-20 h-20 mx-auto mb-3 rounded-xl">
+
+            <h1 class="text-2xl font-bold text-pink-500">
+                Lsoworks 
+            </h1>
+
+            <p class="text-slate-400 text-sm mt-1">
+                Management System
+            </p>
+        </div>
+
+        <nav class="px-4">
+            <a href="/dashboard" class="sidebar-link flex items-center gap-3 p-3 rounded-xl mb-2"><i class="fas fa-home"></i>Dashboard</a>
+            <a href="/products" class="sidebar-link flex items-center gap-3 p-3 rounded-xl mb-2"><i class="fas fa-box"></i>Products</a>
+            <a href="/customers" class="sidebar-link flex items-center gap-3 p-3 rounded-xl mb-2"><i class="fas fa-users"></i>Customers</a>
+            <a href="/suppliers" class="sidebar-link flex items-center gap-3 p-3 rounded-xl mb-2"><i class="fas fa-truck"></i>Suppliers</a>
+            <a href="/billing" class="sidebar-link flex items-center gap-3 p-3 rounded-xl mb-2"><i class="fas fa-cash-register"></i>Billing</a>
+        </nav>
+    </aside>
+
+    <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black/60 z-40 md:hidden"></div>
+
+    <main class="flex-1 p-4 md:p-6 w-full overflow-x-hidden">
+
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div>
+                <h2 class="text-2xl md:text-3xl font-bold">
+                    Welcome, {{ username }} 👋
+                </h2>
+                <p class="text-slate-400 text-sm md:text-base">
+                    ERP Dashboard
+                </p>
+            </div>
+
+            <div class="w-full sm:w-auto">
+                <a href="/logout"
+                   class="bg-red-600 hover:bg-red-700 px-5 py-3 rounded-xl font-semibold transition block text-center sm:inline-block w-full sm:w-auto text-sm">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="card p-5 rounded-xl flex flex-col justify-between">
+                <p class="text-slate-400 text-sm font-medium">Products</p>
+                <h2 class="text-2xl md:text-3xl font-bold mt-2">{{ products }}</h2>
+            </div>
+            <div class="card p-5 rounded-xl flex flex-col justify-between">
+                <p class="text-slate-400 text-sm font-medium">Customers</p>
+                <h2 class="text-2xl md:text-3xl font-bold mt-2">{{ customers }}</h2>
+            </div>
+            <div class="card p-5 rounded-xl flex flex-col justify-between">
+                <p class="text-slate-400 text-sm font-medium">Suppliers</p>
+                <h2 class="text-2xl md:text-3xl font-bold mt-2">{{ suppliers }}</h2>
+            </div>
+            <div class="card p-5 rounded-xl flex flex-col justify-between">
+                <p class="text-slate-400 text-sm font-medium">Sales</p>
+                <h2 class="text-2xl md:text-3xl font-bold mt-2 text-emerald-400">₹{{ sales }}</h2>
+            </div>
+        </div>
+
+        <div class="card p-4 md:p-6 rounded-xl mb-6">
+            <h3 class="text-base md:text-lg font-bold mb-3">Revenue Analytics</h3>
+            <div class="relative h-[250px] md:h-[350px] w-full">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card p-4 md:p-6 rounded-xl mb-6">
+            <h3 class="text-base md:text-lg font-bold mb-3">Profit vs Sales</h3>
+            <div class="relative h-[250px] md:h-[350px] w-full">
+                <canvas id="profitChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card p-4 md:p-6 rounded-xl mb-6">
+            <h3 class="text-base md:text-lg font-bold mb-3">Stock Movement</h3>
+            <div class="relative h-[250px] md:h-[350px] w-full">
+                <canvas id="stockChart"></canvas>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div id="invoiceModal"
+     class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+
+    <div class="bg-slate-900 p-6 rounded-xl w-full max-w-[400px]">
+        <h2 class="text-xl font-bold mb-3">Invoice Preview</h2>
+        <p id="invoiceText" class="text-slate-300">Loading...</p>
+
+        <button onclick="closeModal()"
+        class="mt-4 bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded font-medium w-full sm:w-auto transition">
+            Close
+        </button>
+    </div>
+</div>
+
+<script>
+
+// =====================
+// Mobile Menu Interactions
+// =====================
+const menuBtn = document.getElementById('menuBtn');
+const closeBtn = document.getElementById('closeBtn');
+const sidebar = document.getElementById('sidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+function toggleSidebar() {
+    sidebar.classList.toggle('mobile-open');
+    sidebarOverlay.classList.toggle('hidden');
+}
+
+menuBtn.addEventListener('click', toggleSidebar);
+closeBtn.addEventListener('click', toggleSidebar);
+sidebarOverlay.addEventListener('click', toggleSidebar);
+
+
+// =====================
+// Flask Data
+// =====================
+const labels = {{ chart_labels | tojson | default([]) }};
+const values = {{ chart_values | tojson | default([]) }};
+
+// Chart Global Settings for Responsiveness
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            labels: { color: '#94a3b8' }
+        }
+    },
+    scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+        y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+    }
+};
+
+// =====================
+// SALES CHART
+// =====================
+new Chart(document.getElementById('salesChart'), {
+    type:'line',
+    data:{
+        labels:labels,
+        datasets:[{
+            label:'Sales',
+            data:values,
+            borderColor:'#ec4899',
+            tension: 0.1
+        }]
+    },
+    options: chartOptions
+});
+
+// =====================
+// PROFIT CHART (mock or backend ready)
+// =====================
+new Chart(document.getElementById('profitChart'), {
+    type:'bar',
+    data:{
+        labels:labels,
+        datasets:[
+            {
+                label:'Sales',
+                data:values,
+                backgroundColor:'#22c55e'
+            },
+            {
+                label:'Profit',
+                data:values.map(v => v * 0.3),
+                backgroundColor:'#f59e0b'
+            }
+        ]
+    },
+    options: chartOptions
+});
+
+// =====================
+// STOCK CHART (mock decrease)
+// =====================
+new Chart(document.getElementById('stockChart'), {
+    type:'line',
+    data:{
+        labels:labels,
+        datasets:[{
+            label:'Stock Level',
+            data:values.map(v => 100 - v),
+            borderColor:'#3b82f6',
+            tension: 0.1
+        }]
+    },
+    options: chartOptions
+});
+
+// =====================
+// INVOICE POPUP
+// =====================
+function openInvoice(id){
+    document.getElementById("invoiceModal").classList.remove("hidden");
+    document.getElementById("invoiceText").innerText =
+        "Invoice ID: #" + id;
+}
+
+function closeModal(){
+    document.getElementById("invoiceModal").classList.add("hidden");
+}
+
+</script>
+
+</body>
+</html>

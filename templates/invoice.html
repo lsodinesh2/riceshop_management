@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Invoice</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+@media print {
+    .no-print {
+        display: none;
+    }
+}
+</style>
+
+</head>
+
+<body class="bg-slate-950 text-white p-10">
+
+<!-- INVOICE BOX -->
+<div class="bg-white text-black p-8 rounded-xl max-w-3xl mx-auto">
+
+    <!-- HEADER -->
+    <div class="text-center border-b pb-4">
+        <h1 class="text-2xl font-bold">🧾 RICE SHOP INVOICE</h1>
+        <p>Thank you for your purchase</p>
+    </div>
+
+    <!-- CUSTOMER INFO -->
+    <div class="mt-4">
+        <h2 class="font-bold">Customer Details</h2>
+        <p>Name: {{ sale.name }}</p>
+        <p>Phone: {{ sale.phone }}</p>
+        <p>Address: {{ sale.address }}</p>
+    </div>
+
+    <!-- ITEMS -->
+    <table class="w-full mt-6 border">
+        <thead>
+            <tr class="border-b">
+                <th class="text-left p-2">Product</th>
+                <th class="text-left p-2">KG</th>
+                <th class="text-left p-2">Price</th>
+                <th class="text-left p-2">Total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for i in items %}
+            <tr class="border-b">
+                <td class="p-2">{{ i.rice_name }}</td>
+                <td class="p-2">{{ i.quantity_kg }}</td>
+                <td class="p-2">₹{{ i.price }}</td>
+                <td class="p-2">₹{{ i.price * i.quantity_kg }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- TOTAL -->
+    <div class="text-right mt-6 text-xl font-bold">
+        Total: ₹{{ sale.total_amount }}
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="mt-6 text-center no-print">
+
+        <button onclick="window.print()"
+                class="bg-green-600 text-white px-5 py-2 rounded">
+            🖨 Print Invoice
+        </button>
+
+        <a href="/billing"
+           class="bg-blue-600 text-white px-5 py-2 rounded ml-3">
+            Back
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
