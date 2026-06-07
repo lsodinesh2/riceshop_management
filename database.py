@@ -6,6 +6,6 @@ def get_db():
         host=os.getenv("centerbeam.proxy.rlwy.net"),
         user=os.getenv("root"),
         password=os.getenv("EEnIJRGNIZJpQeBEtXlvcVnllyflqhmR"),
-        database=os.getenv("rice_shop"),
+        database=os.getenv("railway"),
         port=int(os.getenv("21946"))
     )
